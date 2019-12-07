@@ -64,16 +64,15 @@ Decode:
 Decode10:
 	// Recupere le mode
 	mov		x24, x23
-	//and		x24, x24, 0x3f
 	lsr		x24, x24, 6
-	str		x24, [x19]		//Ecrit le mode dans x0
+	str		w24, [x19]		//Ecrit le mode dans x19
 	add		x19, x19, 4		//Incremente l'adr x19
 
 	adr     x0, fmtFormat
 	mov		x1, x24
 	bl  	printf
 
-	sub		x24,x24,1		//Option -1
+	//sub		x24,x24,1		//Option -1
 	lsl		x24,x24,2		//Déplacement = (option-1) * 4
 	adr		x1,switch		//l'instruction est à switch + déplacement
 	add		x1,x1,x24		//...
@@ -97,36 +96,43 @@ Decode10:
 			mov		x25, x23
 			and 	x25, x25, 0x3c	//Masque 0011 1100
 			lsr		x25, x25, 2
-			str		x25, [x19]		//Ecrit l'operation dans x0
+			str		w25, [x19]		//Ecrit l'operation dans x19
+			add		x19, x19, 4		//Incremente l'adr x19
+
+			//todoRecupere l'operand
+			mov		x25, 3
+			//and 	x25, x25, 0x2	//Masque 0000 0010
+		//	lsr		x25, x25, 1
+			str		w25, [x19]		//Ecrit l'operand dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			//Recupere le cc
 			mov		x25, x23
 			and 	x25, x25, 0x2	//Masque 0000 0010
 			lsr		x25, x25, 1
-			str		x25, [x19]		//Ecrit le cc dans x0
+			str		w25, [x19]		//Ecrit le cc dans x0
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			//Recupere le fl
 			mov		x25, x23
 			and 	x25, x25, 0x1	//Masque 0000 001
-			str		x25, [x19]		//Ecrit le float dans x0
+			str		w25, [x19]		//Ecrit le float dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
-			mov		x26, 2 //Size sans le float
+			mov		x26, 0x3 //Size sans le float
 
 			cmp		x25, 1
 			b.ne	decodeFormat0110
-			mov		x26, 4 //Size avec le float
+			mov		x26, 0x5 //Size avec le float
 			decodeFormat0110:
 
 			//Recupere la size
-			str		x26, [x19]		//Ecrit la size dans x0
+			str		w26, [x19]		//Ecrit la size dans x0
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			b		swFin
 
-			//Bloc de code pour l'option 3
+			//Bloc de code pour le format10
 	format10:
 		//	adr		x0,ptfmt4
 		//	bl		printf
