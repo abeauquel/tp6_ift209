@@ -99,11 +99,13 @@ Decode10:
 			str		w25, [x19]		//Ecrit l'operation dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
-			//todoRecupere l'operand
-			mov		x25, 3
-			//and 	x25, x25, 0x2	//Masque 0000 0010
-		//	lsr		x25, x25, 1
-			str		w25, [x19]		//Ecrit l'operand dans x19
+			//Recupere l'operand
+			add		x25, x22, x21
+			ldrb	w26, [x25, 1]		// Lecture du premier octet l'operand
+			ldrb	w27, [x25, 2]		// Lecture du premier octet l'operand
+			lsl		x26, x26, 8
+			add		x26, x26, x27
+			str		w26, [x19]		//Ecrit l'operand dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			//Recupere le cc
