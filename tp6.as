@@ -31,7 +31,7 @@
 /*******************************************************************************
 	Fonction qui décode une instruction.
 
-	
+
 
 	Paramètres
 		x0: Adresse de la structure instruction (pour écrire le résultat)
@@ -53,12 +53,31 @@ Decode:
 	ldr		w21,[x1]		//Obtention du compteur ordinal
 	ldr		x22,[x1,16]		//Obtention du pointeur sur la memoire de la machine virtuelle
 	ldrb	w23,[x22,x21]	//Lecture du premier octet de l'instruction courante
+
 	cmp		x23,0			//Est-ce l'instruction HALT? (0x00)
-	b.ne 	decodeError		//sinon, le reste n'est pas encore supporte: Erreur.
+	b.ne 	Decode10		//sinon, le reste n'est pas encore supporte: Erreur.
 
 	str		xzr,[x19]		//type d'instruction: systeme (0)
 	str		xzr,[x19,4]		//numero d'operation: 0 (HALT)
+	bl		DecodeFin
 
+Decode10:
+	//Lit 23 isole 2 premiers bit pour le mode
+	// En fonction du mode je lis le type de format qui correspond
+	//switch case pour chaque format
+	//Ecrit dans x0 les differents elements d'une instruction
+
+//Penser à regarder si c'est un float pour le push
+//Pour charger l'octet suivant, il est à l adr x21 + 1
+//Pour le push ecrire le chiffre dans operande
+
+//	x0->mode: type d'instruction
+//	x0->operation: champ oper (identifie l'opération spécifique)
+//	x0->operand: opérande (pour PUSH, POP, JMP, READ, WRITE)
+//	x0->cc: utilisation ou non des codes conditions
+//x0->size: taille en octets de l'instruction décodée
+
+DecodeFin:
 	mov		x0,0			//code d'erreur 0: decodage reussi
 
 	RESTORE					//Ramène l'environnement de l'appelant
@@ -91,7 +110,10 @@ decodeError:
 Empile:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
-
+	//Recupere memory à partir de la structure machine de dans x0
+	adr x0, fmtTest
+	mov x1, 5
+	bl printf
 
 
 	RESTORE					//Ramène l'environnement de l'appelant
@@ -114,8 +136,9 @@ Empile:
 Depile:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
-
-
+	adr x0, fmtTest
+	mov x1, 6
+	bl printf
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
@@ -141,6 +164,10 @@ Depile:
 EmuPush:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
+	//Appeler Empile
+	adr x0, fmtTest
+	mov x1, 7
+	bl printf
 
 	mov	x0,1				//code d'erreur 1: instruction non implantée.
 
@@ -162,6 +189,9 @@ EmuPush:
 EmuWrite:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
+	adr x0, fmtWrite
+	mov x1, 7
+	bl printf
 
 	mov	x0,1				//code d'erreur 1: instruction non implantée.
 
@@ -431,4 +461,8 @@ EmuRet:
 	mov	x0,1				//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
-	ret						//Retour à l'appelant
+	ret
+							//Retour à l'appelant
+.section ".rodata"
+fmtTest:		.asciz	"test : %d \n"
+fmtWrite:		.asciz	"Write : %d \n"

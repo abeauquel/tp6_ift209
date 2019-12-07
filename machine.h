@@ -18,11 +18,11 @@ struct Instruction
 
 struct MachineState
 {
- int PC;
- int SP;
+ int PC; // compteur ordinal
+ int SP; // Adresse de la pile
  int PS;
  int padding;
- unsigned char* memory;
+ unsigned char* memory;// Debut adresse memoire vm
 
 };
 
