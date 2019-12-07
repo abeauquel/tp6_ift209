@@ -62,9 +62,52 @@ Decode:
 	bl		DecodeFin
 
 Decode10:
-	//Lit 23 isole 2 premiers bit pour le mode
+	// Recupere le mode
+	mov		x24, x23
+	lsr		x24, x24, 6
+	str		x24, [x19]		//Ecrit le mode dans x0
+	add		x19, x19, 4		//Incremente l'adr x19
+
+	adr     x0, fmtFormat
+	mov		x1, x24
+	bl  	printf
+
+	sub		x24,x24,1		//Option -1
+	lsl		x24,x24,2		//Déplacement = (option-1) * 4
+	adr		x1,switch		//l'instruction est à switch + déplacement
+	add		x1,x1,x24		//...
+	br		x1				//Saute au bon branchement
+
 	// En fonction du mode je lis le type de format qui correspond
 	//switch case pour chaque format
+	switch:
+			b		format00
+			b		format01
+			b		format10
+			//Bloc de code pour le format 00
+	format00:
+
+			b		swFin
+
+			//Bloc de code pour le format 01
+	format01:
+
+			//Recupere l'operation
+			mov		x25, x23
+			and 	x25, x25, 0x3c
+			lsr		x25, x25, 2
+			str		x25, [x19]		//Ecrit l'operation dans x0
+			add		x19, x19, 4		//Incremente l'adr x19
+
+			b		swFin
+
+			//Bloc de code pour l'option 3
+	format10:
+		//	adr		x0,ptfmt4
+		//	bl		printf
+			b		swFin
+	swFin:
+
 	//Ecrit dans x0 les differents elements d'une instruction
 
 //Penser à regarder si c'est un float pour le push
@@ -111,6 +154,9 @@ Empile:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
 	//Recupere memory à partir de la structure machine de dans x0
+	//Recupere le SP
+	//Ajouter à la pile
+	//Faire avancer l'adresse de la pile ( add SP puis ecriture au meme endroit)
 	adr x0, fmtTest
 	mov x1, 5
 	bl printf
@@ -192,7 +238,9 @@ EmuWrite:
 	adr x0, fmtWrite
 	mov x1, 7
 	bl printf
-
+	//Verifier si c'est un float pour la taille et le format
+	// Sinon tu depile ton format / chiffre
+	//printf
 	mov	x0,1				//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
@@ -466,3 +514,4 @@ EmuRet:
 .section ".rodata"
 fmtTest:		.asciz	"test : %d \n"
 fmtWrite:		.asciz	"Write : %d \n"
+fmtFormat:		.asciz	"Format : %d \n"
