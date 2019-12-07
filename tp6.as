@@ -64,6 +64,7 @@ Decode:
 Decode10:
 	// Recupere le mode
 	mov		x24, x23
+	//and		x24, x24, 0x3f
 	lsr		x24, x24, 6
 	str		x24, [x19]		//Ecrit le mode dans x0
 	add		x19, x19, 4		//Incremente l'adr x19
@@ -94,9 +95,33 @@ Decode10:
 
 			//Recupere l'operation
 			mov		x25, x23
-			and 	x25, x25, 0x3c
+			and 	x25, x25, 0x3c	//Masque 0011 1100
 			lsr		x25, x25, 2
 			str		x25, [x19]		//Ecrit l'operation dans x0
+			add		x19, x19, 4		//Incremente l'adr x19
+
+			//Recupere le cc
+			mov		x25, x23
+			and 	x25, x25, 0x2	//Masque 0000 0010
+			lsr		x25, x25, 1
+			str		x25, [x19]		//Ecrit le cc dans x0
+			add		x19, x19, 4		//Incremente l'adr x19
+
+			//Recupere le fl
+			mov		x25, x23
+			and 	x25, x25, 0x1	//Masque 0000 001
+			str		x25, [x19]		//Ecrit le float dans x0
+			add		x19, x19, 4		//Incremente l'adr x19
+
+			mov		x26, 2 //Size sans le float
+
+			cmp		x25, 1
+			b.ne	decodeFormat0110
+			mov		x26, 4 //Size avec le float
+			decodeFormat0110:
+
+			//Recupere la size
+			str		x26, [x19]		//Ecrit la size dans x0
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			b		swFin
@@ -514,4 +539,4 @@ EmuRet:
 .section ".rodata"
 fmtTest:		.asciz	"test : %d \n"
 fmtWrite:		.asciz	"Write : %d \n"
-fmtFormat:		.asciz	"Format : %d \n"
+fmtFormat:		.asciz	"Format : %x \n"

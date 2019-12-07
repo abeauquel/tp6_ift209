@@ -101,7 +101,7 @@ void Machine::run()
 
 void Machine::step(Instruction inst)
 {
-	printf("\nMonde: %d\nOperation: %d\nOperand: %d\nCC: %d\nFl: %d\nSize: %d\n", inst.mode, inst.operation, inst.operand, inst.cc, inst.fl, inst.size);
+	printf("\nMode: %d\nOperation: %d\nOperand: %d\nCC: %d\nFl: %d\nSize: %d\n", inst.mode, inst.operation, inst.operand, inst.cc, inst.fl, inst.size);
   printf("!!  PC=0x%x  SP=0x%x  PS=0x%x !!    ",state.PC,state.SP,state.PS);
  int res=-1;
  if(inst.mode==0)
