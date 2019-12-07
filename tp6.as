@@ -105,7 +105,7 @@ Decode10:
 			ldrb	w27, [x25, 2]		// Lecture du premier octet l'operand
 			lsl		x26, x26, 8
 			add		x26, x26, x27
-			str		w26, [x19]		//Ecrit l'operand dans x19
+			str		w26, [x19]		//Ecrit l'operande dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
 			//Recupere le cc
@@ -186,14 +186,28 @@ decodeError:
 Empile:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
-	//Recupere memory à partir de la structure machine de dans x0
-	//Recupere le SP
-	//Ajouter à la pile
-	//Faire avancer l'adresse de la pile ( add SP puis ecriture au meme endroit)
-	adr x0, fmtTest
-	mov x1, 5
-	bl printf
 
+	//Recupere memory à partir de la structure machine de dans x0
+	mov	x19, x0		//Recupere l'adresse de MachineState
+	mov	x27, x1
+
+	ldr	w21, [x19, 16] // Recupere l'adresse de memory
+	ldr w20, [x19, 4] //Recupere l'adresse de la pile
+	add x20, x20, x21 // Calcul de l'adresse de la pile de puis memory
+	strh w2, [x20] //On ajoute à la pile le chiffre ( 2 octets)
+
+
+	cmp	x27, 4		// C'est un float
+	b.ne	Empile10
+	str w2, [x20]//On ajoute à la pile 4 octets si c'est un float
+
+Empile10:
+
+
+	//Faire avancer l'adresse de la pile ( add SP puis ecriture au meme endroit)
+	ldr w20, [x19, 4] //Recupere de nouveau l'adresse de la pile
+	add x20, x20, x27 // On increment l'adresse avec le nombre d'octet du chiffre
+	str w20, [x19, 4]	// On save la nouvelle adresse de la pile
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
@@ -243,12 +257,29 @@ Depile:
 EmuPush:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
-	//Appeler Empile
-	adr x0, fmtTest
-	mov x1, 7
-	bl printf
+	mov	x19, x0 // Adresse de la structure instruction
+	mov x20, x1 // Adresse de la structure Machine
 
-	mov	x0,1				//code d'erreur 1: instruction non implantée.
+
+
+	ldr w21, [x19, 20] // Charge la size de l'instruction
+	sub	x21, x21, 1		// On enleve l'octet de l'instruction
+
+	ldr w22, [x19, 8]	// Charge l'operande
+
+
+	//x0: Adresse de la structure Machine (état actuel du simulateur)
+ 	//x1: Le nombre d'octets à empiler (2 ou 4).
+	//x2: La valeur à empiler
+	mov	x0, x20
+	mov x1, x21
+	mov x2, x22
+
+	bl Empile
+
+	// Prepare les valeurs de retour
+	mov		x0, 0
+	//mov	x0,1				//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
@@ -274,7 +305,7 @@ EmuWrite:
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
 	//printf
-	mov	x0,1				//code d'erreur 1: instruction non implantée.
+	mov	x0,0				//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
