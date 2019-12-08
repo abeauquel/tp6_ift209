@@ -96,18 +96,17 @@ Decode10:
 			add		x19, x19, 4
 		    str		xzr, [x19]		//Desactive le float
 			add		x19, x19, 4
-
+			mov		x26, 1 //Size
+			str		w26, [x19]		// Ecrit la size dans Instruction->size
 
 			cmp		x25, 0x3
-			b.ne	decodeFormat0010
+			b.ne	decodeFormat00Float
 			mov		x1, 1
 			str		w1, [x19]		//Active le float
-	decodeFormat0010:
+	decodeFormat00Float:
 
-			//Save la size
-			mov		x26, 0x1 //Size
-			strh	w26, [x19]		// Ecrit la size dans x19
-
+			b		swFin
+			
 			//Bloc de code pour le format 01
 	format01:
 
@@ -145,7 +144,7 @@ Decode10:
 			cmp		x25, 1
 			b.ne	decodeFormat0110
 			mov		x26, 0x5 //Size avec le float
-			decodeFormat0110:
+	decodeFormat0110:
 
 			//Recupere la size
 			str		w26, [x19]		//Ecrit la size dans x0
