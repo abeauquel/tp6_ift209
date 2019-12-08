@@ -68,10 +68,6 @@ Decode10:
 	str		w24, [x19]		//Ecrit le mode dans x19
 	add		x19, x19, 4		//Incremente l'adr x19
 
-	adr     x0, fmtFormat
-	mov		x1, x24
-	bl  	printf
-
 	//sub		x24,x24,1		//Option -1
 	lsl		x24,x24,2		//Déplacement = (option-1) * 4
 	adr		x1,switch		//l'instruction est à switch + déplacement
@@ -86,8 +82,31 @@ Decode10:
 			b		format10
 			//Bloc de code pour le format 00
 	format00:
-
+			//Recupere l'operation
+			mov		x25, x23
+			and 	x25, x25, 0x38	//Masque 0011 1000
+			lsr		x25, x25, 3
+			str		w25, [x19]		//Ecrit l'operation dans x19
 			b		swFin
+
+			//Recupere le format
+			mov		x25, x23
+			and 	x25, x25, 0x3	//Masque 0000 0111
+			str		x25, [x19, 4] // Sauvegarde du format dans operande
+			str		xzr, [x19, 8]		//Desactive le cc
+			str		xzr, [x19, 12]		//Desactive le float
+
+			mov		x26, 0x2 //Size sans le float
+
+			cmp		x25, 0x2
+			b.ne	decodeFormat0010
+			mov		x26, 0x4 //Size avec le float
+			mov		x1, 1
+			str		x1, [x19, 12]		//Active le float
+			decodeFormat0010:
+
+			//Save la size
+			str		w26, [x19, 16]		// Ecrit la size dans x19
 
 			//Bloc de code pour le format 01
 	format01:
@@ -612,4 +631,4 @@ EmuRet:
 .section ".rodata"
 fmtTest:		.asciz	"test : %d \n"
 fmtWrite:		.asciz	"Write : %d \n"
-fmtFormat:		.asciz	"Format : %x \n"
+fmtFormat:		.asciz	"\n Format : %x \n"
