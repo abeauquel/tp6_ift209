@@ -253,16 +253,22 @@ Depile:
 	mov	x27, x1		// Recupere le nombre d'octet à depiler
 
 	ldr	w21, [x19, 16] // Recupere l'adresse de memory
-	ldr w20, [x19, 4] //Recupere l'adresse de la pile
+	ldr w20, [x19, 4] //Recupere l'adresse de la pile a partir de memory
 	add x20, x20, x21 // Calcul de l'adresse de la pile depuis memory
+	sub x20, x20, 2  // On recul pour avoir le nombre sur la pile
 	ldrh w2, [x20] //On charge le chiffre depuis la pile ( 2 octets)
-	//strh xzr, [x20] // On remet à 0
+
+	//mov x1, x2
+	//adr x0, fmtWriteD
+//	bl printf
 
 	cmp	x27, 4		// C'est un float
 	b.ne	Depile10
+	sub x20, x20, 2  // On recul encore de 2 si c'est un float
 	ldr w2, [x20] //On charge le chiffre depuis la pile ( 4 octets)
-	//strw xzr, [x20] // On remet à 0
+//	strw xzr, [x20] // On remet à 0
 Depile10:
+	//strh xzr, [x20] // On remet à 0
 
 	ldr w20, [x19, 4] //Recupere de nouveau l'adresse de la pile
 	sub x20, x20, x27 // On decremente l'adresse avec le nombre d'octet du chiffre
