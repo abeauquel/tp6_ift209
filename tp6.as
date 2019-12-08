@@ -357,7 +357,7 @@ EmuWrite:
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
 	mov 	x25, x0
-	
+
 	lsl		x22,x22,2		//Déplacement = (option-1) * 4
 	adr		x27,switchWrite		//l'instruction est à switch + déplacement
 	add		x27,x27,x22		//...
@@ -477,9 +477,26 @@ EmuRead:
 
 EmuAdd:
 	SAVE					//Sauvegarde l'environnement de l'appelant
+	mov	x19, x0
+	mov	x20, x1
+
+	bl	Depile
+	mov	x27, x0	//premier chiffre à ADD
+
+	bl	Depile
+	mov	x26, x0	//second chiffre à ADD
 
 
-	mov	x0,1				//code d'erreur 1: instruction non implantée.
+
+	//x0: Adresse de la structure Machine (état actuel du simulateur)
+ 	//x1: Le nombre d'octets à empiler (2 ou 4).
+
+	mov	x0, x20
+	mov x1, 2		//todo trouver comment savoir la taille
+	add x2, x26, x27	//x2: La valeur à empiler
+
+	bl Empile
+	//mov	x0,0				//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
