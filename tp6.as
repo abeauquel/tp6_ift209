@@ -489,8 +489,15 @@ EmuAdd:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 	mov	x19, x0
 	mov	x20, x1
-	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
 
+	ldr w23, [x19, 16]
+	mov	x22, 2 // Taille du nombre par defaut
+
+	cmp	x23, 0x1
+	b.ne	EmuAdd10
+	mov	x22, 4 // Taille du nombre pour les floats
+
+EmuAdd10:
 	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
 	mov x1, x22
 	//x1:	Le nombre d'octets à dépiler (2 ou 4).
@@ -535,8 +542,14 @@ EmuSub:
 
 	mov	x19, x0
 	mov	x20, x1
-	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
+	ldr w23, [x19, 16]
+	mov	x22, 2 // Taille du nombre par defaut
 
+	cmp	x23, 0x1
+	b.ne	EmuSub10
+	mov	x22, 4 // Taille du nombre pour les floats
+
+EmuSub10:
 	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
 	mov x1, x22
 	//x1:	Le nombre d'octets à dépiler (2 ou 4).
@@ -579,8 +592,14 @@ EmuMul:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 	mov	x19, x0
 	mov	x20, x1
-	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
+	ldr w23, [x19, 16]
+	mov	x22, 2 // Taille du nombre par defaut
 
+	cmp	x23, 0x1
+	b.ne	EmuMul10
+	mov	x22, 4 // Taille du nombre pour les floats
+
+EmuMul10:
 	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
 	mov x1, x22
 	//x1:	Le nombre d'octets à dépiler (2 ou 4).
@@ -624,8 +643,14 @@ EmuDiv:
 
 	mov	x19, x0
 	mov	x20, x1
-	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
+	ldr w23, [x19, 16]
+	mov	x22, 2 // Taille du nombre par defaut
 
+	cmp	x23, 0x1
+	b.ne	EmuDiv10
+	mov	x22, 4 // Taille du nombre pour les floats
+
+EmuDiv10:
 	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
 	mov x1, x22
 	//x1:	Le nombre d'octets à dépiler (2 ou 4).
