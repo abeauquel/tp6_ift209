@@ -106,7 +106,7 @@ Decode10:
 	decodeFormat00Float:
 
 			b		swFin
-			
+
 			//Bloc de code pour le format 01
 	format01:
 
@@ -356,7 +356,8 @@ EmuWrite:
 	bl Depile
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
-
+	mov 	x25, x0
+	
 	lsl		x22,x22,2		//Déplacement = (option-1) * 4
 	adr		x27,switchWrite		//l'instruction est à switch + déplacement
 	add		x27,x27,x22		//...
