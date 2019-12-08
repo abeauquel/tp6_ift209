@@ -116,6 +116,12 @@ Decode10:
 			lsr		x25, x25, 2
 			str		w25, [x19]		//Ecrit l'operation dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
+			mov		x4, x25			//Sauvegarde l'operation dans x4
+
+			mov		x26, xzr
+			str		w26, [x19]		//Ecrit l'operande par defaut dans x19
+			cmp		x4, xzr
+			b.ne	format01SansOperande
 
 			//Recupere l'operand
 			add		x25, x22, x21
@@ -124,8 +130,8 @@ Decode10:
 			lsl		x26, x26, 8
 			add		x26, x26, x27
 			str		w26, [x19]		//Ecrit l'operande dans x19
+	format01SansOperande:
 			add		x19, x19, 4		//Incremente l'adr x19
-
 			//Recupere le cc
 			mov		x25, x23
 			and 	x25, x25, 0x2	//Masque 0000 0010
@@ -139,8 +145,11 @@ Decode10:
 			str		w25, [x19]		//Ecrit le float dans x19
 			add		x19, x19, 4		//Incremente l'adr x19
 
-			mov		x26, 0x3 //Size sans le float
+			mov		x26, 0x1  //Size pare defaut
+			cmp		x4, xzr
+			b.ne	decodeFormat0110
 
+			mov		x26, 0x3 //Size sans le float pour un push
 			cmp		x25, 1
 			b.ne	decodeFormat0110
 			mov		x26, 0x5 //Size avec le float
@@ -149,6 +158,7 @@ Decode10:
 			//Recupere la size
 			str		w26, [x19]		//Ecrit la size dans x0
 			add		x19, x19, 4		//Incremente l'adr x19
+
 
 			b		swFin
 
