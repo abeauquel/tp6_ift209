@@ -577,9 +577,27 @@ EmuSub:
 *******************************************************************************/
 EmuMul:
 	SAVE					//Sauvegarde l'environnement de l'appelant
+	mov	x19, x0
+	mov	x20, x1
+	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
 
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, x22
+	//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	bl	Depile
+	mov	x27, x0	//premier chiffre à ADD
 
-	mov	x0,1				//code d'erreur 1: instruction non implantée.
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, x22		//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	bl	Depile
+	mov	x26, x0	//second chiffre à ADD
+
+	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	//x1: Le nombre d'octets à empiler (2 ou 4).
+	mov	x0, x20
+	mov x1, x22		//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	mul x2, x27, x26	//x2: La valeur à empiler
+
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
@@ -604,8 +622,27 @@ EmuMul:
 EmuDiv:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
+	mov	x19, x0
+	mov	x20, x1
+	mov	x22, 2 // Taille du nombre todo par defaut 2 aucune idee comment trouver la taille
 
-	mov	x0,1				//code d'erreur 1: instruction non implantée.
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, x22
+	//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	bl	Depile
+	mov	x27, x0	//premier chiffre à ADD
+
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, x22		//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	bl	Depile
+	mov	x26, x0	//second chiffre à ADD
+
+	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	//x1: Le nombre d'octets à empiler (2 ou 4).
+	mov	x0, x20
+	mov x1, x22		//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	sdiv x2, x26, x27	//x2: La valeur à empiler
+
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
