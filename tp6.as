@@ -490,13 +490,18 @@ EmuAdd:
 	mov	x19, x0
 	mov	x20, x1
 
+
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, 2	//todo par defaut 2 aucune idee comment trouver la taille
+	//x1:	Le nombre d'octets à dépiler (2 ou 4).
 	bl	Depile
 	mov	x27, x0	//premier chiffre à ADD
 
+	mov x0, x20	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	mov x1, 2	//todo par defaut 2 aucune idee comment trouver la taille
+	//x1:	Le nombre d'octets à dépiler (2 ou 4).
 	bl	Depile
 	mov	x26, x0	//second chiffre à ADD
-
-
 
 	//x0: Adresse de la structure Machine (état actuel du simulateur)
  	//x1: Le nombre d'octets à empiler (2 ou 4).
