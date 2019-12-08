@@ -338,14 +338,11 @@ EmuWrite:
 	mov	x19, x0 // Adresse de la structure instruction
 	mov x20, x1 // Adresse de la structure Machine
 
-
+	ldr w22, [x19, 8] // Charge le format de l'instruction
 
 	ldr w21, [x19, 20] // Charge la size de l'instruction
-	sub	x21, x21, 1		// On enleve l'octet de l'instruction
 
-	mov x1, x21
-	adr x0, fmtWrite
-	bl printf
+
 
 	mov x0, x20
 	mov x1, x21
@@ -354,9 +351,54 @@ EmuWrite:
 	bl Depile
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
-	mov x1, x0
-	adr x0, fmtWrite
+
+	mov x1, x0 //Nombre à afficher
+	adr x0, fmtWriteD
 	bl printf
+
+	lsl		x22,x22,2		//Déplacement = (option-1) * 4
+	adr		x27,switchWrite		//l'instruction est à switch + déplacement
+	add		x27,x27,x22		//...
+	br		x27				//Saute au bon branchement
+
+
+
+switchWrite:
+		b		swop1 //000 : « %c »
+		b		swop2 //001 : « %d »
+		b		swop3 //010 : « %s »
+		b		swop4 //011 : « %f »
+		b		swop5 //100 : « %u »
+		b		swop6 //101 : « %x »
+
+swop1:
+		adr		x0,fmtWriteC
+		bl		printf
+		b		switchWriteFin
+
+swop2:
+		adr		x0,fmtWriteD
+		bl		printf
+		b		switchWriteFin
+
+swop3:
+		adr		x0,fmtWriteS
+		bl		printf
+		b		switchWriteFin
+
+swop4:
+		adr		x0,fmtWriteF
+		bl		printf
+		b		switchWriteFin
+swop5:
+		adr		x0,fmtWriteU
+		bl		printf
+		b		switchWriteFin
+swop6:
+		adr		x0,fmtWriteX
+		bl		printf
+		b		switchWriteFin
+switchWriteFin:
 
 	mov	x0,	0			//code d'erreur 1: instruction non implantée.
 
@@ -630,5 +672,11 @@ EmuRet:
 							//Retour à l'appelant
 .section ".rodata"
 fmtTest:		.asciz	"test : %d \n"
-fmtWrite:		.asciz	"Write : %d \n"
+fmtWriteD:		.asciz	"Write : %d \n"
+fmtWriteC:		.asciz	"Write : %c \n"
+fmtWriteF:		.asciz	"Write : %f \n"
+fmtWriteS:		.asciz	"Write : %s \n"
+fmtWriteX:		.asciz	"Write : %x \n"
+fmtWriteU:		.asciz	"Write : %u \n"
+
 fmtFormat:		.asciz	"\n Format : %x \n"
