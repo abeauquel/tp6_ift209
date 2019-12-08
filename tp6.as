@@ -83,30 +83,30 @@ Decode10:
 			//Bloc de code pour le format 00
 	format00:
 			//Recupere l'operation
-			mov		x25, x23
-			and 	x25, x25, 0x38	//Masque 0011 1000
+			and 	x25, x23, 0x38	//Masque 0011 1000
 			lsr		x25, x25, 3
 			str		w25, [x19]		//Ecrit l'operation dans x19
-			b		swFin
+			add		x19, x19, 4
 
 			//Recupere le format
-			mov		x25, x23
-			and 	x25, x25, 0x3	//Masque 0000 0111
-			str		x25, [x19, 4] // Sauvegarde du format dans operande
-			str		xzr, [x19, 8]		//Desactive le cc
-			str		xzr, [x19, 12]		//Desactive le float
+			and 	x25, x23, 0x3	//Masque 0000 0111
+			str		w25, [x19] // Sauvegarde du format dans operande
+			add		x19, x19, 4
+			str		xzr, [x19]		//Desactive le cc
+			add		x19, x19, 4
+		    str		xzr, [x19]		//Desactive le float
+			add		x19, x19, 4
 
-			mov		x26, 0x2 //Size sans le float
 
-			cmp		x25, 0x2
+			cmp		x25, 0x3
 			b.ne	decodeFormat0010
-			mov		x26, 0x4 //Size avec le float
 			mov		x1, 1
-			str		x1, [x19, 12]		//Active le float
-			decodeFormat0010:
+			str		w1, [x19]		//Active le float
+	decodeFormat0010:
 
 			//Save la size
-			str		w26, [x19, 16]		// Ecrit la size dans x19
+			mov		x26, 0x1 //Size
+			strh	w26, [x19]		// Ecrit la size dans x19
 
 			//Bloc de code pour le format 01
 	format01:
@@ -210,8 +210,8 @@ Empile:
 	mov	x19, x0		//Recupere l'adresse de MachineState
 	mov	x27, x1
 
-	ldr	w21, [x19, 16] // Recupere l'adresse de memory
 	ldr w20, [x19, 4] //Recupere l'adresse de la pile
+	ldr	w21, [x19, 16] // Recupere l'adresse de memory
 	add x20, x20, x21 // Calcul de l'adresse de la pile de puis memory
 	strh w2, [x20] //On ajoute à la pile le chiffre ( 2 octets)
 
@@ -274,7 +274,7 @@ Depile10:
 	sub x20, x20, x27 // On decremente l'adresse avec le nombre d'octet du chiffre
 	str w20, [x19, 4]	// On save la nouvelle adresse de la pile
 
-	mov x0, x2 //On retoure le nombre depilé
+	mov x0, x2 				//On retoure le nombre depilé
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
 
@@ -358,10 +358,6 @@ EmuWrite:
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
 
-	mov x1, x0 //Nombre à afficher
-	adr x0, fmtWriteD
-	bl printf
-
 	lsl		x22,x22,2		//Déplacement = (option-1) * 4
 	adr		x27,switchWrite		//l'instruction est à switch + déplacement
 	add		x27,x27,x22		//...
@@ -379,29 +375,38 @@ switchWrite:
 
 swop1:
 		adr		x0,fmtWriteC
+		mov		x1, x25 //Nombre à afficher
 		bl		printf
 		b		switchWriteFin
 
 swop2:
 		adr		x0,fmtWriteD
+		mov		x1, x25 //Nombre à afficher
+
 		bl		printf
 		b		switchWriteFin
 
 swop3:
 		adr		x0,fmtWriteS
+		mov		x1, x25 //Nombre à afficher
 		bl		printf
 		b		switchWriteFin
 
 swop4:
 		adr		x0,fmtWriteF
+		mov		x1, x25 //Nombre à afficher
+		//mov 	x1, xf1 // utiliser un registre floats
+
 		bl		printf
 		b		switchWriteFin
 swop5:
 		adr		x0,fmtWriteU
+		mov		x1, x25 //Nombre à afficher
 		bl		printf
 		b		switchWriteFin
 swop6:
 		adr		x0,fmtWriteX
+		mov		x1, x25 //Nombre à afficher
 		bl		printf
 		b		switchWriteFin
 switchWriteFin:
