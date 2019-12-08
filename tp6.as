@@ -229,10 +229,27 @@ Empile10:
 Depile:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
-	adr x0, fmtTest
-	mov x1, 6
-	bl printf
+	//Recupere memory à partir de la structure machine de dans x0
+	mov	x19, x0		//Recupere l'adresse de MachineState
+	mov	x27, x1		// Recupere le nombre d'octet à depiler
 
+	ldr	w21, [x19, 16] // Recupere l'adresse de memory
+	ldr w20, [x19, 4] //Recupere l'adresse de la pile
+	add x20, x20, x21 // Calcul de l'adresse de la pile depuis memory
+	ldrh w2, [x20] //On charge le chiffre depuis la pile ( 2 octets)
+	//strh xzr, [x20] // On remet à 0
+
+	cmp	x27, 4		// C'est un float
+	b.ne	Depile10
+	ldr w2, [x20] //On charge le chiffre depuis la pile ( 4 octets)
+	//strw xzr, [x20] // On remet à 0
+Depile10:
+
+	ldr w20, [x19, 4] //Recupere de nouveau l'adresse de la pile
+	sub x20, x20, x27 // On decremente l'adresse avec le nombre d'octet du chiffre
+	str w20, [x19, 4]	// On save la nouvelle adresse de la pile
+
+	mov x0, x2 //On retoure le nombre depilé
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
 
@@ -299,13 +316,30 @@ EmuPush:
 EmuWrite:
 	SAVE					//Sauvegarde l'environnement de l'appelant
 
+	mov	x19, x0 // Adresse de la structure instruction
+	mov x20, x1 // Adresse de la structure Machine
+
+
+
+	ldr w21, [x19, 20] // Charge la size de l'instruction
+	sub	x21, x21, 1		// On enleve l'octet de l'instruction
+
+	mov x1, x21
 	adr x0, fmtWrite
-	mov x1, 7
 	bl printf
+
+	mov x0, x20
+	mov x1, x21
+	//x0: Adresse de la structure Machine (état actuel du simulateur)
+	//x1:	Le nombre d'octets à dépiler (2 ou 4).
+	bl Depile
 	//Verifier si c'est un float pour la taille et le format
 	// Sinon tu depile ton format / chiffre
-	//printf
-	mov	x0,0				//code d'erreur 1: instruction non implantée.
+	mov x1, x0
+	adr x0, fmtWrite
+	bl printf
+
+	mov	x0,	0			//code d'erreur 1: instruction non implantée.
 
 	RESTORE					//Ramène l'environnement de l'appelant
 	ret						//Retour à l'appelant
