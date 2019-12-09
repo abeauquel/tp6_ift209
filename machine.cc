@@ -150,10 +150,12 @@ void Machine::step(Instruction inst)
 			{
 				if (inst.fl==0)
 				{
+
 					printf(" %d",inst.operand);
 				}
 				else
 				{
+
 					float temp;
 					unsigned char * tempptr;
 					tempptr = (unsigned char* )&temp;

@@ -151,8 +151,30 @@ Decode10:
 
 			mov		x26, 0x3 //Size sans le float pour un push
 			cmp		x25, 1
+
 			b.ne	decodeFormat0110
+			//Recupere l'operand pour le float
+			sub		x19, x19, 12
+			add		x25, x22, x21
+			ldrb	w26, [x25, 1]		// Lecture du premier octet l'operand
+			ldrb	w27, [x25, 2]		// Lecture du deuxieme octet l'operand
+			ldrb	w0, [x25, 3]		// Lecture du troisieme octet l'operand
+			ldrb	w1, [x25, 4]		// Lecture du quatrieme octet l'operand
+
+			lsl		x26, x26, 24
+			lsl		x27, x27, 16
+			lsl		x0, x0, 8
+
+			add		x26, x26, x27
+			add		x26, x26, x0
+			add		x26, x26, x1
+
+			str		w26, [x19]		//Ecrit l'operande dans x19
+
+			add		x19, x19, 12
+
 			mov		x26, 0x5 //Size avec le float
+
 	decodeFormat0110:
 
 			//Recupere la size

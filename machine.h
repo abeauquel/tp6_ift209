@@ -7,12 +7,12 @@ using namespace std;
 
 struct Instruction
 {
-	int mode;
-	int operation;
-	int operand;
-	int cc;
-	int fl;
-	int size;
+	int mode; //0
+	int operation; // 4
+	int operand; // 8
+	int cc;		// 12
+	int fl;		// 16
+	int size;	//20
 };
 
 
